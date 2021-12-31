@@ -13,7 +13,7 @@ public class CoordinateList implements CommandExecutor {
     public ArrayList<Coordinate> list;
 
     @Override
-    public boolean onCommand(CommandSender sender, String[] args){
+    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args){
         if(!(sender instanceof Player)){
             sender.sendMessage("Only players can use this command");
             return true;
