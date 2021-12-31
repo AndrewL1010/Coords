@@ -13,24 +13,26 @@ public class CoordinateList implements CommandExecutor {
     public ArrayList<Coordinate> list;
 
     @Override
-    public boolean onCommand(CommandSender sender, String[] args, Player player){
+    public boolean onCommand(CommandSender sender, String[] args){
+        if(!(sender instanceof Player)){
+            sender.sendMessage("Only players can use this command");
+            return true;
+        }
+        Player player = (Player)sender;
         if(args.length > 4){
             sender.sendMessage("Incorrect format\n");
             printHelp(sender);
-            return true;
         }
-        if(args[0].equals("help")){
+        else if(args[0].equals("help")){
             printHelp(sender);
-            return true;
         }
-        if(args.length < 2 && !args[0].equals("show")){
+        else if(args.length < 2 && !args[0].equals("show")){
             Location location = player.getLocation();
             String name = args[1];
             Coordinate coordinate = new Coordinate(location, name);
             list.add(coordinate);
-            return true;
         }
-        if(arg[0].equals("show")){
+        else if(args[0].equals("show")){
             for(Coordinate coord: list){
                 if(coord.name.equals(args[1])){
                     double x = coord.location.getX();
@@ -43,13 +45,31 @@ public class CoordinateList implements CommandExecutor {
             sender.sendMessage("Location does not exist");
             return true;
         }
-        if(args[0].equals("list")){
+        else if(args[0].equals("list")){
             StringBuilder S = new StringBuilder();
             for(Coordinate C: list){
                 S.append(C.name).append(" ");
             }
             sender.sendMessage(S.toString());
             return true;
+        }
+        else if(args[0].equals("remove")){
+            String name = args[1];
+            if(list.removeIf(C -> C.name.equals(name))){
+                sender.sendMessage("location has been removed");
+            }
+            else{
+                sender.sendMessage("location is not in the list");
+            }
+        }
+        else{
+            double x = Double.parseDouble(args[1]);
+            double y = Double.parseDouble(args[2]);
+            double z = Double.parseDouble(args[3]);
+            String name = args[0];
+            Location location = new Location(player.getWorld(), x, y, z);
+            Coordinate coordinate = new Coordinate(location, name);
+            list.add(coordinate);
         }
 
         return false;
