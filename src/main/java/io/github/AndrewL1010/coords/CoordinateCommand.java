@@ -5,20 +5,19 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 
 
-public class CoordinateList implements CommandExecutor {
-    public ArrayList<Coordinate> list;
-
+public class CoordinateCommand implements CommandExecutor {
+    ArrayList<Coordinate> list;
     @Override
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args){
-        if(!(sender instanceof Player)){
+    public boolean onCommand(@NotNull CommandSender sender,@NotNull Command cmd,@NotNull String label, String[] args){
+        if(!(sender instanceof Player player)){
             sender.sendMessage("Only players can use this command");
             return true;
         }
-        Player player = (Player)sender;
         if(args.length > 4){
             sender.sendMessage("Incorrect format\n");
             printHelp(sender);
@@ -28,16 +27,16 @@ public class CoordinateList implements CommandExecutor {
         }
         else if(args.length < 2 && !args[0].equals("show")){
             Location location = player.getLocation();
-            String name = args[1];
+            String name = args[0];
             Coordinate coordinate = new Coordinate(location, name);
             list.add(coordinate);
         }
         else if(args[0].equals("show")){
-            for(Coordinate coord: list){
-                if(coord.name.equals(args[1])){
-                    double x = coord.location.getX();
-                    double y = coord.location.getY();
-                    double z = coord.location.getZ();
+            for(Coordinate C: list){
+                if(C.name.equals(args[1])){
+                    double x = C.location.getX();
+                    double y = C.location.getY();
+                    double z = C.location.getZ();
                     sender.sendMessage(x + " " + y + " " + z + "\n");
                     return true;
                 }
