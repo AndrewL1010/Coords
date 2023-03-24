@@ -36,8 +36,10 @@ public class CoordinateCommand implements CommandExecutor {
             return true;
         }
         if (args.length == 0) {
-            sender.sendMessage("incorrect format of command");
-            return true;
+            return false;
+        }
+        if (args[0].equals("help")) {
+            return false;
         }
 
         UUID playerID = player.getUniqueId();
@@ -52,9 +54,6 @@ public class CoordinateCommand implements CommandExecutor {
                 e.printStackTrace();
             }
 
-        } else if (args[0].equals("help")) {
-            printHelp(sender);
-            return true;
         }
         if (locations != null) {
             Map<String, Object> map = locations.getValues(false);
@@ -101,6 +100,8 @@ public class CoordinateCommand implements CommandExecutor {
                     } catch (IOException e) {
                         e.printStackTrace();
                         sender.sendMessage("" + ChatColor.RED + name + "add attempt failed");
+                    } catch (NumberFormatException e) {
+                        sender.sendMessage("" + ChatColor.RED + "Incorrect number format!");
                     }
                 } else {
                     sender.sendMessage(ChatColor.RED + "Name of location taken already!");
@@ -197,14 +198,6 @@ public class CoordinateCommand implements CommandExecutor {
         return true;
 
 
-    }
-
-    private void printHelp(CommandSender sender) {
-        sender.sendMessage("/coords [location] -> saves the coordinates where you are standing\n");
-        sender.sendMessage("/coords [location] [X] [Y] [Z] -> saves the coordinates of x y z input\n");
-        sender.sendMessage("/coords [remove] [location]-> deletes the coordinates of corresponding location\n");
-        sender.sendMessage("/coords [show] [location]-> returns the location of [name]");
-        sender.sendMessage("/coords [list] returns the list of all locations saved");
     }
 
 

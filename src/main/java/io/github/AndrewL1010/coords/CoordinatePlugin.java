@@ -13,6 +13,7 @@ public class CoordinatePlugin extends JavaPlugin {
         PluginCommand command = getCommand("coords");
         if (command != null) {
             command.setExecutor(new CoordinateCommand(this));
+            command.setTabCompleter(new CoordsTabCompleter(this));
         }
 
 
