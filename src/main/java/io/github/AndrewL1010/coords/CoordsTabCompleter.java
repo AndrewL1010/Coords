@@ -29,7 +29,7 @@ public class CoordsTabCompleter implements TabCompleter {
 
 
         if (args.length == 1) {
-            return Arrays.asList("help", "save", "set", "list", "get", "remove");
+            return Arrays.asList("help", "save", "set", "list", "get", "remove", "removeall");
         }
         if (args.length == 2) {
 

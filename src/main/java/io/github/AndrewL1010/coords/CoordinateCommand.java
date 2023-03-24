@@ -68,11 +68,11 @@ public class CoordinateCommand implements CommandExecutor {
                         locations.set(name + ".Y", coordinate.getY());
                         locations.set(name + ".Z", coordinate.getZ());
                         playerData.save(file);
-                        sender.sendMessage("" + ChatColor.GREEN + name + " successfully added");
+                        sender.sendMessage("" + ChatColor.GREEN + name + "Successfully added");
 
                     } catch (IOException e) {
                         e.printStackTrace();
-                        sender.sendMessage("" + ChatColor.RED + name + " add attempt failed");
+                        sender.sendMessage("" + ChatColor.RED + name + "Add attempt failed");
                     }
 
                 } else {
@@ -81,7 +81,7 @@ public class CoordinateCommand implements CommandExecutor {
                 return true;
             } else if (args[0].equals("set")) {
                 if (args.length != 5) {
-                    sender.sendMessage(ChatColor.RED + "use format: /coords add [name] [x] [y] [z]");
+                    sender.sendMessage(ChatColor.RED + "Use format: /coords add [name] [x] [y] [z]");
                     return true;
                 }
                 if (!map.containsKey(args[1])) {
@@ -96,10 +96,10 @@ public class CoordinateCommand implements CommandExecutor {
                         locations.set(name + ".Y", coordinate.getY());
                         locations.set(name + ".Z", coordinate.getZ());
                         playerData.save(file);
-                        sender.sendMessage("" + ChatColor.GREEN + name + " successfully added");
+                        sender.sendMessage("" + ChatColor.GREEN + name + "Successfully added");
                     } catch (IOException e) {
                         e.printStackTrace();
-                        sender.sendMessage("" + ChatColor.RED + name + "add attempt failed");
+                        sender.sendMessage("" + ChatColor.RED + name + "Add attempt failed");
                     } catch (NumberFormatException e) {
                         sender.sendMessage("" + ChatColor.RED + "Incorrect number format!");
                     }
@@ -110,10 +110,10 @@ public class CoordinateCommand implements CommandExecutor {
             } else if (args[0].equals("get") && args.length == 2) {
                 MemorySection coord = (MemorySection) map.get(args[1]);
                 if (map.isEmpty()) {
-                    sender.sendMessage(ChatColor.RED + "you don't have any coordinates saved");
+                    sender.sendMessage(ChatColor.RED + "You don't have any coordinates saved");
                     return true;
                 } else if (!map.containsKey(args[1])) {
-                    sender.sendMessage(ChatColor.RED + "you don't have that location saved");
+                    sender.sendMessage(ChatColor.RED + "You don't have that location saved");
                     return true;
                 }
 
@@ -135,7 +135,7 @@ public class CoordinateCommand implements CommandExecutor {
             } else if (args[0].equals("list")) {
 
                 if (map.isEmpty()) {
-                    sender.sendMessage(ChatColor.RED + "you don't have any coordinates saved");
+                    sender.sendMessage(ChatColor.RED + "You don't have any coordinates saved");
                     return true;
                 }
 
@@ -169,7 +169,7 @@ public class CoordinateCommand implements CommandExecutor {
                             successfull = true;
                         } catch (IOException e) {
                             e.printStackTrace();
-                            sender.sendMessage("" + ChatColor.RED + args[1] + " removal failed");
+                            sender.sendMessage("" + ChatColor.RED + args[1] + "Removal failed");
                         }
                     } else {
                         unsuccessfull = true;
@@ -191,6 +191,19 @@ public class CoordinateCommand implements CommandExecutor {
 
 
                 return true;
+            } else if (args[0].equals("removeall")) {
+                if (map.isEmpty()) {
+                    sender.sendMessage("" + ChatColor.RED + args[1] + "You don't have any coords to remove");
+                }
+                for (String locationName : map.keySet()) {
+                    locations.set(locationName, null);
+                }
+                try {
+                    playerData.save(file);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                sender.sendMessage("" + ChatColor.GREEN + "Successfully removed all coords");
             }
 
         }
