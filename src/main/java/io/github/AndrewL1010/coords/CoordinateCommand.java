@@ -6,6 +6,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.MemorySection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -13,170 +14,198 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 
 public class CoordinateCommand implements CommandExecutor {
 
 
-    public HashMap<UUID, HashMap<String, Coordinate>> map;
-    public ArrayList<UUID> playerList;
     private final CoordinatePlugin plugin;
 
-    public CoordinateCommand(CoordinatePlugin plugin, HashMap<UUID, HashMap<String, Coordinate>> map, ArrayList<UUID> playerList){
+    public CoordinateCommand(CoordinatePlugin plugin) {
         this.plugin = plugin;
-        this.map = map;
-        this.playerList = playerList;
+
     }
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender,@NotNull Command cmd,@NotNull String label, String[] args){
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, String[] args) {
 
-        if(!(sender instanceof Player player)){
+        if (!(sender instanceof Player player)) {
             sender.sendMessage("Only players can use this command");
             return true;
         }
+        if (args.length == 0) {
+            sender.sendMessage("incorrect format of command");
+            return true;
+        }
+
         UUID playerID = player.getUniqueId();
-        if(args.length > 4){
-            sender.sendMessage(ChatColor.RED + "Incorrect format\n");
-            printHelp(sender);
-            return true;
-        }
-        else if(args[0].equals("help")){
-            printHelp(sender);
-            return true;
-        }
-        else if(args.length == 2 && args[0].equals("set")){
-            if(!map.containsKey(playerID)){
-                map.put(playerID, new HashMap<String, Coordinate>());
-                makeFile(player);
+        File file = new File(plugin.getDataFolder(), playerID + ".yml");
+        FileConfiguration playerData = YamlConfiguration.loadConfiguration(file);
+        ConfigurationSection locations = playerData.getConfigurationSection("locations");
+        if (!file.exists()) {
+            playerData.createSection("locations");
+            try {
+                playerData.save(file);
+            } catch (IOException e) {
+                e.printStackTrace();
             }
 
-            if(!map.get(playerID).containsKey(args[1])){
-                if(!playerList.contains(playerID)){
-                    playerList.add(playerID);
-                    File file = new File(plugin.getDataFolder(), "playerList.yml");
-                    FileConfiguration playerListData = YamlConfiguration.loadConfiguration(file);
-                    playerListData.createSection("players");
-                    playerListData.set("players." + "player " + playerList.size(), playerID.toString());
+        } else if (args[0].equals("help")) {
+            printHelp(sender);
+            return true;
+        }
+        if (locations != null) {
+            Map<String, Object> map = locations.getValues(false);
+            if (args.length == 2 && args[0].equals("add")) {
+
+                if (!map.containsKey(args[1])) {
+                    String name = args[1];
                     try {
-                        playerListData.save(file);
+                        Location location = player.getLocation();
+                        Coordinate coordinate = new Coordinate((int) location.getX(), (int) location.getY(), (int) location.getZ());
+                        locations.set(name + ".X", coordinate.getX());
+                        locations.set(name + ".Y", coordinate.getY());
+                        locations.set(name + ".Z", coordinate.getZ());
+                        playerData.save(file);
+                        sender.sendMessage("" + ChatColor.GREEN + name + " successfully added");
+
                     } catch (IOException e) {
                         e.printStackTrace();
+                        sender.sendMessage("" + ChatColor.RED + name + " add attempt failed");
                     }
-                }
-                Location location = player.getLocation();
-                String name = args[1];
-                Coordinate coordinate = new Coordinate((int)location.getX(),(int)location.getY(),(int)location.getZ());
-                map.get(playerID).put(name, coordinate);
-                sender.sendMessage("" + ChatColor.GREEN + name + " successfully added");
 
-                File file = new File(plugin.getDataFolder(), playerID.toString() + "-Coords.yml");
-                FileConfiguration playerData = YamlConfiguration.loadConfiguration(file);
-                ConfigurationSection locations = playerData.getConfigurationSection(("locations"));
-                if(locations != null){
-                    locations.set(name + ".X", coordinate.getX());
-                    locations.set(name + ".Y", coordinate.getY());
-                    locations.set(name + ".Z", coordinate.getZ());
+                } else {
+                    sender.sendMessage(ChatColor.RED + "Name of location taken already!");
                 }
-                try {
-                    playerData.save(file);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            else{
-                sender.sendMessage(ChatColor.RED + "Name of location taken already!");
-            }
-
-            return true;
-        }
-        else if(args[0].equals("show")){
-            if(!map.containsKey(playerID)){
-                sender.sendMessage(ChatColor.RED + "you don't have any coordinates saved");
                 return true;
-            }
-            for(String locationName: map.get(playerID).keySet()){
-                if(locationName.equals(args[1])){
-                    int x = map.get(playerID).get(locationName).getX();
-                    int y = map.get(playerID).get(locationName).getY();
-                    int z = map.get(playerID).get(locationName).getZ();
-                    sender.sendMessage(args[1] + ": " + x + " " + y + " " + z + "\n");
+            } else if (args[0].equals("set")) {
+                if (args.length != 5) {
+                    sender.sendMessage(ChatColor.RED + "use format: /coords add [name] [x] [y] [z]");
                     return true;
                 }
-            }
-            sender.sendMessage(ChatColor.RED + "Location does not exist");
-            return true;
-        }
-        else if(args[0].equals("list")){
-            if(!map.containsKey(playerID)){
-                sender.sendMessage(ChatColor.RED + "you don't have any coordinates saved");
+                if (!map.containsKey(args[1])) {
+                    String name = args[1];
+
+                    try {
+                        int x = Integer.parseInt(args[2]);
+                        int y = Integer.parseInt(args[3]);
+                        int z = Integer.parseInt(args[4]);
+                        Coordinate coordinate = new Coordinate(x, y, z);
+                        locations.set(name + ".X", coordinate.getX());
+                        locations.set(name + ".Y", coordinate.getY());
+                        locations.set(name + ".Z", coordinate.getZ());
+                        playerData.save(file);
+                        sender.sendMessage("" + ChatColor.GREEN + name + " successfully added");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        sender.sendMessage("" + ChatColor.RED + name + "add attempt failed");
+                    }
+                } else {
+                    sender.sendMessage(ChatColor.RED + "Name of location taken already!");
+                }
+                return true;
+            } else if (args[0].equals("get") && args.length == 2) {
+                MemorySection coord = (MemorySection) map.get(args[1]);
+                if (map.isEmpty()) {
+                    sender.sendMessage(ChatColor.RED + "you don't have any coordinates saved");
+                    return true;
+                } else if (!map.containsKey(args[1])) {
+                    sender.sendMessage(ChatColor.RED + "you don't have that location saved");
+                    return true;
+                }
+
+
+                String strX = coord.getString("X");
+                String strY = coord.getString("Y");
+                String strZ = coord.getString("Z");
+                if (strX != null && strY != null && strZ != null) {
+                    int x = Integer.parseInt(strX);
+                    int y = Integer.parseInt(strY);
+                    int z = Integer.parseInt(strZ);
+                    sender.sendMessage("" + ChatColor.GOLD + args[1] + ": " + ChatColor.WHITE + x + " " + y + " " + z + "\n");
+                    return true;
+                }
+
+
+                sender.sendMessage(ChatColor.RED + "Location does not exist");
+                return true;
+            } else if (args[0].equals("list")) {
+
+                if (map.isEmpty()) {
+                    sender.sendMessage(ChatColor.RED + "you don't have any coordinates saved");
+                    return true;
+                }
+
+                for (String locationName : map.keySet()) {
+                    MemorySection coord = (MemorySection) map.get(locationName);
+                    String x = coord.getString("X");
+                    String y = coord.getString("Y");
+                    String z = coord.getString("Z");
+                    sender.sendMessage("" + ChatColor.GOLD + locationName + ": " + ChatColor.WHITE + x + "/" + y + "/" + z);
+                }
+                return true;
+            } else if (args[0].equals("remove")) {
+                String name;
+                StringBuilder successfullMsg = new StringBuilder();
+                StringBuilder unsuccessfullMsg = new StringBuilder();
+                successfullMsg.append("");
+                successfullMsg.append(ChatColor.GREEN);
+                unsuccessfullMsg.append("");
+                unsuccessfullMsg.append(ChatColor.RED);
+                boolean unsuccessfull = false;
+                boolean successfull = false;
+
+                for (int i = 1; i < args.length; i++) {
+                    name = args[i];
+                    if (map.containsKey(name)) {
+                        try {
+                            locations.set(name, null);
+                            playerData.save(file);
+                            successfullMsg.append(name);
+                            successfullMsg.append(", ");
+                            successfull = true;
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            sender.sendMessage("" + ChatColor.RED + args[1] + " removal failed");
+                        }
+                    } else {
+                        unsuccessfull = true;
+                        unsuccessfullMsg.append(name);
+                        unsuccessfullMsg.append(", ");
+                    }
+                }
+                if (successfull) {
+                    successfullMsg.deleteCharAt(successfullMsg.length() - 1);
+                    successfullMsg.append(" has been removed");
+                    sender.sendMessage(successfullMsg.toString());
+                }
+                if (unsuccessfull) {
+                    unsuccessfullMsg.deleteCharAt((unsuccessfullMsg.length() - 1));
+                    unsuccessfullMsg.append(" does not exist");
+                    sender.sendMessage(unsuccessfullMsg.toString());
+
+                }
+
+
                 return true;
             }
-            StringBuilder S = new StringBuilder();
-            for(String locationName: map.get(playerID).keySet()){
-                S.append(locationName).append(", ");
-            }
-            sender.sendMessage(S.toString());
-            if(map.get(playerID).size() == 0){
-                sender.sendMessage(ChatColor.RED + "you have no coordinates saved");
-            }
-            return true;
-        }
-        else if(args[0].equals("remove")){
-            String name = args[1];
-            if(map.get(playerID).containsKey(name)){
-                map.get(playerID).remove(name);
-                sender.sendMessage("" + ChatColor.GREEN + args[1] + " has been removed");
 
-                File file = new File(plugin.getDataFolder(), playerID.toString() + "-Cords.yml");
-                YamlConfiguration playerData = YamlConfiguration.loadConfiguration(file);
-
-                ConfigurationSection locations = playerData.getConfigurationSection("keys");
-
-                if(locations != null){
-                    locations.set(name, null);
-                }
-
-                try {
-                    playerData.save(file);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            else{
-                sender.sendMessage( "" + ChatColor.RED + args[1] + " is not in the list");
-            }
-            return true;
         }
 
         return true;
 
 
     }
-    private void printHelp(CommandSender sender){
+
+    private void printHelp(CommandSender sender) {
         sender.sendMessage("/coords [location] -> saves the coordinates where you are standing\n");
         sender.sendMessage("/coords [location] [X] [Y] [Z] -> saves the coordinates of x y z input\n");
         sender.sendMessage("/coords [remove] [location]-> deletes the coordinates of corresponding location\n");
         sender.sendMessage("/coords [show] [location]-> returns the location of [name]");
         sender.sendMessage("/coords [list] returns the list of all locations saved");
     }
-    private void makeFile(Player player){
 
-        if(!new File(plugin.getDataFolder(), player.getUniqueId().toString() + "-Coords.yml").exists()){
-            File f = new File( plugin.getDataFolder(), player.getUniqueId().toString() + "-Coords.yml");
-            FileConfiguration playerData = YamlConfiguration.loadConfiguration(f);
-
-            playerData.createSection("locations");
-
-            try {
-                playerData.save(f);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
 
 }
