@@ -42,17 +42,18 @@ public class CoordsTabCompleter implements TabCompleter {
                     return new ArrayList<String>(map.keySet());
                 }
             }
-            if (args[0].equals("set")) {
-                int currentX = (int) location.getBlockX();
-                return List.of(Integer.toString(currentX));
-            }
+
         }
         if (args.length == 3 && args[0].equals("set")) {
+            int currentX = (int) location.getBlockX();
+            return List.of(Integer.toString(currentX));
+        }
+        if (args.length == 4 && args[0].equals("set")) {
             int currentY = (int) location.getBlockY();
             return List.of(Integer.toString(currentY));
 
         }
-        if (args.length == 4 && args[0].equals("set")) {
+        if (args.length == 5 && args[0].equals("set")) {
             int currentZ = (int) location.getBlockZ();
             return List.of(Integer.toString(currentZ));
 

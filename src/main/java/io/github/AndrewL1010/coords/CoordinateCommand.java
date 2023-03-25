@@ -57,18 +57,17 @@ public class CoordinateCommand implements CommandExecutor {
         }
         if (locations != null) {
             Map<String, Object> map = locations.getValues(false);
-            if (args.length == 2 && args[0].equals("add")) {
+            if (args.length == 2 && args[0].equals("save")) {
 
                 if (!map.containsKey(args[1])) {
                     String name = args[1];
                     try {
                         Location location = player.getLocation();
-                        Coordinate coordinate = new Coordinate((int) location.getX(), (int) location.getY(), (int) location.getZ());
-                        locations.set(name + ".X", coordinate.getX());
-                        locations.set(name + ".Y", coordinate.getY());
-                        locations.set(name + ".Z", coordinate.getZ());
+                        locations.set(name + ".X", (int) location.getX());
+                        locations.set(name + ".Y", (int) location.getY());
+                        locations.set(name + ".Z", (int) location.getZ());
                         playerData.save(file);
-                        sender.sendMessage("" + ChatColor.GREEN + name + "Successfully added");
+                        sender.sendMessage("" + ChatColor.GREEN + name + " Successfully added");
 
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -91,15 +90,14 @@ public class CoordinateCommand implements CommandExecutor {
                         int x = Integer.parseInt(args[2]);
                         int y = Integer.parseInt(args[3]);
                         int z = Integer.parseInt(args[4]);
-                        Coordinate coordinate = new Coordinate(x, y, z);
-                        locations.set(name + ".X", coordinate.getX());
-                        locations.set(name + ".Y", coordinate.getY());
-                        locations.set(name + ".Z", coordinate.getZ());
+                        locations.set(name + ".X", x);
+                        locations.set(name + ".Y", y);
+                        locations.set(name + ".Z", z);
                         playerData.save(file);
-                        sender.sendMessage("" + ChatColor.GREEN + name + "Successfully added");
+                        sender.sendMessage("" + ChatColor.GREEN + name + " Successfully added");
                     } catch (IOException e) {
                         e.printStackTrace();
-                        sender.sendMessage("" + ChatColor.RED + name + "Add attempt failed");
+                        sender.sendMessage("" + ChatColor.RED + name + " Add attempt failed");
                     } catch (NumberFormatException e) {
                         sender.sendMessage("" + ChatColor.RED + "Incorrect number format!");
                     }
@@ -125,7 +123,7 @@ public class CoordinateCommand implements CommandExecutor {
                     int x = Integer.parseInt(strX);
                     int y = Integer.parseInt(strY);
                     int z = Integer.parseInt(strZ);
-                    sender.sendMessage("" + ChatColor.GOLD + args[1] + ": " + ChatColor.WHITE + x + " " + y + " " + z + "\n");
+                    sender.sendMessage("" + ChatColor.GOLD + args[1] + ": " + ChatColor.WHITE + x + "/" + y + "/" + z + "\n");
                     return true;
                 }
 
@@ -169,7 +167,7 @@ public class CoordinateCommand implements CommandExecutor {
                             successfull = true;
                         } catch (IOException e) {
                             e.printStackTrace();
-                            sender.sendMessage("" + ChatColor.RED + args[1] + "Removal failed");
+                            sender.sendMessage("" + ChatColor.RED + args[1] + " Removal failed");
                         }
                     } else {
                         unsuccessfull = true;
