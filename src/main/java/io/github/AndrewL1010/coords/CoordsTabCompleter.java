@@ -35,7 +35,7 @@ public class CoordsTabCompleter implements TabCompleter {
         }
         if (args.length == 2) {
 
-            if (args[0].equals("get") || args[0].equals("remove")) {
+            if (args[0].equals("get") || args[0].equals("remove") || args[0].equals("set")) {
                 ConfigurationSection locations = setupData((Player) commandSender);
                 if (locations != null) {
                     Map<String, Object> map = locations.getValues(false);
@@ -44,18 +44,21 @@ public class CoordsTabCompleter implements TabCompleter {
             }
 
         }
-        if (args.length == 3 && args[0].equals("set")) {
-            int currentX = (int) location.getBlockX();
-            return List.of(Integer.toString(currentX));
-        }
-        if (args.length == 4 && args[0].equals("set")) {
-            int currentY = (int) location.getBlockY();
-            return List.of(Integer.toString(currentY));
+        if (args[0].equals("set")) {
+            if (args.length == 3) {
+                int currentX = (int) location.getBlockX();
+                return List.of(Integer.toString(currentX));
+            }
+            if (args.length == 4) {
+                int currentY = (int) location.getBlockY();
+                return List.of(Integer.toString(currentY));
 
-        }
-        if (args.length == 5 && args[0].equals("set")) {
-            int currentZ = (int) location.getBlockZ();
-            return List.of(Integer.toString(currentZ));
+            }
+            if (args.length == 5) {
+                int currentZ = (int) location.getBlockZ();
+                return List.of(Integer.toString(currentZ));
+
+            }
 
         }
 
@@ -65,7 +68,7 @@ public class CoordsTabCompleter implements TabCompleter {
 
     public ConfigurationSection setupData(Player player) {
         UUID playerID = player.getUniqueId();
-        File file = new File(plugin.getDataFolder(), playerID + ".yml");
+        File file = new File(plugin.getDataFolder() + "/PlayerLocationsData", playerID + ".yml");
         FileConfiguration playerData = YamlConfiguration.loadConfiguration(file);
         return playerData.getConfigurationSection("locations");
     }
