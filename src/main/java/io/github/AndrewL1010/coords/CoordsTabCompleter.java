@@ -1,6 +1,7 @@
 package io.github.AndrewL1010.coords;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
@@ -26,7 +27,8 @@ public class CoordsTabCompleter implements TabCompleter {
     @Nullable
     @Override
     public List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
-
+        Player player = (Player) commandSender;
+        Location location = player.getLocation();
 
         if (args.length == 1) {
             return Arrays.asList("help", "save", "set", "list", "get", "remove", "removeall");
@@ -40,6 +42,20 @@ public class CoordsTabCompleter implements TabCompleter {
                     return new ArrayList<String>(map.keySet());
                 }
             }
+            if (args[0].equals("set")) {
+                int currentX = (int) location.getBlockX();
+                return List.of(Integer.toString(currentX));
+            }
+        }
+        if (args.length == 3 && args[0].equals("set")) {
+            int currentY = (int) location.getBlockY();
+            return List.of(Integer.toString(currentY));
+
+        }
+        if (args.length == 4 && args[0].equals("set")) {
+            int currentZ = (int) location.getBlockZ();
+            return List.of(Integer.toString(currentZ));
+
         }
 
 
