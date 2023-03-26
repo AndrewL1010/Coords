@@ -43,7 +43,7 @@ public class CoordinateCommand implements CommandExecutor {
         }
 
         UUID playerID = player.getUniqueId();
-        File file = new File(plugin.getDataFolder() + "/Locations", playerID + ".yml");
+        File file = new File(plugin.getDataFolder() + "/locations", playerID + ".yml");
         FileConfiguration playerData = YamlConfiguration.loadConfiguration(file);
         ConfigurationSection locations = playerData.getConfigurationSection("locations");
         if (!file.exists() || locations == null) {

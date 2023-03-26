@@ -68,7 +68,7 @@ public class CoordsTabCompleter implements TabCompleter {
 
     public ConfigurationSection setupData(Player player) {
         UUID playerID = player.getUniqueId();
-        File file = new File(plugin.getDataFolder() + "/Locationsa", playerID + ".yml");
+        File file = new File(plugin.getDataFolder() + "/locations", playerID + ".yml");
         FileConfiguration playerData = YamlConfiguration.loadConfiguration(file);
         return playerData.getConfigurationSection("locations");
     }
