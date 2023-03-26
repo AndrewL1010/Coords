@@ -43,23 +43,19 @@ public class CoordinateCommand implements CommandExecutor {
         }
 
         UUID playerID = player.getUniqueId();
-        File file = new File(plugin.getDataFolder() + "/PlayerLocationsData", playerID + ".yml");
+        File file = new File(plugin.getDataFolder() + "/Locations", playerID + ".yml");
         FileConfiguration playerData = YamlConfiguration.loadConfiguration(file);
         ConfigurationSection locations = playerData.getConfigurationSection("locations");
-        if (!file.exists()) {
-            playerData.createSection("locations");
+        if (!file.exists() || locations == null) {
+            locations = playerData.createSection("locations");
             try {
                 playerData.save(file);
-                locations = playerData.getConfigurationSection("locations");
             } catch (IOException e) {
                 e.printStackTrace();
             }
 
         }
-        if (locations == null) {
-            sender.sendMessage("" + ChatColor.RED + "there was an error");
-            return true;
-        }
+
 
         Map<String, Object> map = locations.getValues(false);
         if (args[0].equals("save")) {

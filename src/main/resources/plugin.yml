@@ -8,7 +8,7 @@ commands:
     description: Saves/removes coordinates in the coordinate list
     usage: |
       /coords save [name]
-      /coords set [x] [y] [z]
+      /coords set [name] [x] [y] [z]
       /coords list
       /coords get [name]
       /coords remove [name1] [name2] [name3] ...
